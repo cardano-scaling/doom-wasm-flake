@@ -14,7 +14,8 @@ _: {
             (types.submodule ({ config, ... }: {
               options = {
                 assets = mkOption {
-                  type = types.path;
+                  type = types.nullOr types.path;
+                  default = null;
                 };
                 src = mkOption {
                   type = types.path;
