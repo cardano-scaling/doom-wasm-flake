@@ -1,5 +1,10 @@
 # ChangeLog for doom-wasm-flake
 
+## 0.3.0
+
+* `outputPackage` is now `outputs.site`.
+* Add `outputs.server` output derivation with running server.
+
 ## 0.2.1
 
 * Fix `assets` implementation.

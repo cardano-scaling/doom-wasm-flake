@@ -11,7 +11,7 @@ _: {
       options.perSystem = mkPerSystemOption ({ pkgs, lib, ... }: {
         options.doom = mkOption {
           type = types.attrsOf
-            (types.submodule ({ config, ... }: {
+            (types.submodule ({ name, config, ... }: {
               options = {
                 assets = mkOption {
                   type = types.nullOr types.path;
@@ -20,7 +20,7 @@ _: {
                 src = mkOption {
                   type = types.path;
                 };
-                ports = mkOption {
+                dependencies = mkOption {
                   type = types.attrsOf (types.submodule {
                     options = {
                       url = mkOption {
@@ -54,69 +54,81 @@ _: {
                     };
                   };
                 };
-                outputPackage = mkOption {
-                  type = types.attrs;
-                  default =
-                    pkgs.buildEmscriptenPackage {
-                      name = "doom-wasm";
+                port = mkOption {
+                  type = types.int;
+                  default = 3000;
+                };
+                outputs = {
+                  site = mkOption {
+                    type = types.attrs;
+                    default =
+                      pkgs.buildEmscriptenPackage {
+                        name = "doom-wasm";
 
-                      buildInputs = with pkgs; [
-                        pkg-config
-                        ccls
-                        autoconf
-                        python3
-                        nodejs_20
-                        automake
-                        gnumake
-                        emscripten
-                        unar
-                        unzip
-                      ];
+                        buildInputs = with pkgs; [
+                          pkg-config
+                          ccls
+                          autoconf
+                          python3
+                          nodejs_20
+                          automake
+                          gnumake
+                          emscripten
+                          unar
+                          unzip
+                        ];
 
-                      inherit (config) src;
+                        inherit (config) src;
 
-                      configurePhase = ''
-                        export EM_CACHE=$TMPDIR/.emscriptencache
-                        mkdir -p $EM_CACHE/ports
-                        pushd $EM_CACHE/ports
-                        ${lib.concatStrings (builtins.attrValues (builtins.mapAttrs (name: value: ''
-                             mkdir ${name}
-                             pushd ${name}
-                             echo ${value.url} > .emscripten_url
-                             unar ${builtins.fetchurl value}
-                             popd
-                           '')
-                         config.ports))}
-                         popd
-                         emconfigure autoreconf -fiv
-                         ac_cv_exeext=".html" emconfigure ./configure --host=none-none-none || cat config.log
-                         echo "Checking for config.h..."
-                         find . -name config.h || echo "config.h not found!"
-                      '';
+                        configurePhase = ''
+                          export EM_CACHE=$TMPDIR/.emscriptencache
+                          mkdir -p $EM_CACHE/ports
+                          pushd $EM_CACHE/ports
+                          ${lib.concatStrings (builtins.attrValues (builtins.mapAttrs (name: value: ''
+                               mkdir ${name}
+                               pushd ${name}
+                               echo ${value.url} > .emscripten_url
+                               unar ${builtins.fetchurl value}
+                               popd
+                             '')
+                           config.dependencies))}
+                           popd
+                           emconfigure autoreconf -fiv
+                           ac_cv_exeext=".html" emconfigure ./configure --host=none-none-none || cat config.log
+                           echo "Checking for config.h..."
+                           find . -name config.h || echo "config.h not found!"
+                        '';
 
-                      buildPhase = ''
-                        emmake make
-                      '';
+                        buildPhase = ''
+                          emmake make
+                        '';
 
-                      installPhase = ''
-                        mkdir -p $out
-                        ${if (config.assets != null) then "cp ${config.assets}/* -r $out" else ""}
-                        cp src/index.html $out
-                        cp src/*.js $out
-                        cp src/*.wasm $out
-                        cp src/*.wasm.map $out
-                      '';
+                        installPhase = ''
+                          mkdir -p $out
+                          ${if (config.assets != null) then "cp ${config.assets}/* -r $out" else ""}
+                          cp src/index.html $out
+                          cp src/*.js $out
+                          cp src/*.wasm $out
+                          cp src/*.wasm.map $out
+                        '';
 
-                      checkPhase = ":";
-                    };
+                        checkPhase = ":";
+                      };
 
+                  };
+                  server = mkOption {
+                    type = types.path;
+                    default = pkgs.writers.writeBashBin name ''
+                      ${pkgs.simple-http-server}/bin/simple-http-server --port ${builtins.toString config.port} ${config.outputs.site}
+                    '';
+                  };
                 };
               };
             }));
         };
       });
       config.perSystem = { config, ... }: {
-        packages = caller.lib.mapAttrs (_: doom: doom.outputPackage) config.doom;
+        packages = caller.lib.mapAttrs (_: doom: doom.outputs.server) config.doom;
       };
     };
 }
