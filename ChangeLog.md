@@ -1,5 +1,9 @@
 # ChangeLog for doom-wasm-flake
 
+## 0.2.1
+
+* Fix `assets` implementation.
+
 ## 0.2.0
 
 * Make `assets` option nullable.

@@ -100,7 +100,7 @@ _: {
 
                       installPhase = ''
                         mkdir -p $out
-                        cp ${config.assets}/* -r $out
+                        ${if (config.assets != null) then "cp ${config.assets}/* -r $out" else ""}
                         cp src/index.html $out
                         cp src/*.js $out
                         cp src/*.wasm $out
