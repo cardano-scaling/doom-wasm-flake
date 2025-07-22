@@ -1,5 +1,9 @@
 # ChangeLog for doom-wasm-flake
 
+## 0.3.1
+
+* Fix README.
+
 ## 0.3.0
 
 * `outputPackage` is now `outputs.site`.

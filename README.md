@@ -1,6 +1,6 @@
-# chocolate-doom flake
+# doom-wasm flake
 
-[flake-parts](https://flake.parts) module to create a [chocolate-doom](https://github.com/chocolate-doom/chocolate-doom) application.
+[flake-parts](https://flake.parts) module to create a [doom-wasm](https://github.com/cloudflare/doom-wasm) application.
 
 You can enable this and set the options like so:
 
@@ -8,27 +8,25 @@ You can enable this and set the options like so:
 {
   inputs = {
     flake-parts.url = "github:hercules-ci/flake-parts";
-    chocolate-doom = {
+    doom-wasm = {
       flake = false;
-      url = "github:chocolate-doom/chocolate-doom";
+      url = "github:cloudflare/doom-wasm";
     };
-    chocolate-doom-flake.url = "git+https://github.com/cardano-scaling/chocolate-doom-flake";
-    nixpkgs.url = "github:NixOS/nixpkgs";
+    doom-wasm-flake.url = "git+https://github.com/cardano-scaling/doom-wasm-flake";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-23.11";
   };
 
   outputs = inputs.flake-parts.lib.mkFlake { inherit inputs; } {
 
     imports = [
-      inputs.chocolate-doom-flake.flakeModule
+      inputs.doom-wasm-flake.flakeModule
     ];
 
     perSystem = { ... }: {
       doom.default = {
         enable = true;
-        src = inputs.chocolate-doom;
-        iwad = [
-          "${inputs.self}/freedoom.wad"
-        ];
+        src = inputs.doom-wasm;
+        assets = "${self}/assets";
       };
     };
 
