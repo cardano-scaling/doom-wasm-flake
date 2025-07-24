@@ -1,5 +1,9 @@
 # ChangeLog for doom-wasm-flake
 
+## 0.3.2
+
+* Add `site` as a subattribute of `packages` export.
+
 ## 0.3.1
 
 * Fix README.

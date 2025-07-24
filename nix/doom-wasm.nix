@@ -128,7 +128,7 @@ _: {
         };
       });
       config.perSystem = { config, ... }: {
-        packages = caller.lib.mapAttrs (_: doom: doom.outputs.server) config.doom;
+        packages = caller.lib.mapAttrs (_: doom: doom.outputs.server.overrideAttrs (old: old // { inherit (doom.outputs) site; })) config.doom;
       };
     };
 }
