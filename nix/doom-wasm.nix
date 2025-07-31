@@ -119,7 +119,7 @@ _: {
                   server = mkOption {
                     type = types.path;
                     default = pkgs.writers.writeBashBin name ''
-                      ${pkgs.simple-http-server}/bin/simple-http-server --port ${builtins.toString config.port} ${config.outputs.site}
+                      ${pkgs.haskellPackages.wai-app-static}/bin/warp -v --port ${builtins.toString config.port} -d ${config.outputs.site}
                     '';
                   };
                 };

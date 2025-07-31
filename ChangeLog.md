@@ -1,5 +1,9 @@
 # ChangeLog for doom-wasm-flake
 
+## 0.3.3
+
+* Switch from `simple-http-server` to `warp`.
+
 ## 0.3.2
 
 * Add `site` as a subattribute of `packages` export.
